@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TEMU Value Calculator | Futuristic Currency Converter</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #0af2ff;
+            --secondary: #7b42f6;
+            --accent: #ff2a6d;
+            --dark-bg: #0a0a16;
+            --darker-bg: #050510;
+            --glass-bg: rgba(16, 18, 36, 0.7);
+            --glass-border: rgba(100, 220, 255, 0.2);
+            --text-light: #e0f7ff;
+            --text-dim: #a0b2c8;
+            --success: #00ff9d;
+        }
+
+        body {
+            font-family: 'Exo 2', sans-serif;
+            background-color: var(--darker-bg);
+            color: var(--text-light);
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(91, 10, 145, 0.15) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(10, 145, 200, 0.1) 0%, transparent 20%);
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header Styles */
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            position: relative;
+        }
+
+        .logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3.5rem;
+            font-weight: 900;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+            text-shadow: 0 0 15px rgba(10, 242, 255, 0.5);
+            animation: pulse 3s infinite alternate;
+        }
+
+        .tagline {
+            font-size: 1.2rem;
+            color: var(--text-dim);
+            margin-bottom: 30px;
+            font-weight: 300;
+        }
+
+        .header-decoration {
+            height: 2px;
+            width: 200px;
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
+            margin: 0 auto 30px;
+        }
+
+        /* Main Content */
+        .main-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 40px;
+            justify-content: center;
+            margin-bottom: 60px;
+        }
+
+        .calculator-card, .results-card {
+            flex: 1;
+            min-width: 300px;
+            max-width: 500px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .calculator-card:hover, .results-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4),
+                        0 0 0 1px rgba(10, 242, 255, 0.1),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .section-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            margin-bottom: 25px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title i {
+            font-size: 1.5rem;
+        }
+
+        /* Input Styles */
+        .input-group {
+            margin-bottom: 25px;
+        }
+
+        .input-label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: var(--text-dim);
+            font-size: 1.1rem;
+        }
+
+        .input-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .currency-symbol {
+            position: absolute;
+            left: 15px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--primary);
+            z-index: 1;
+        }
+
+        #usdInput {
+            width: 100%;
+            padding: 18px 18px 18px 40px;
+            background: rgba(10, 15, 35, 0.8);
+            border: 1px solid rgba(10, 242, 255, 0.3);
+            border-radius: 12px;
+            color: var(--text-light);
+            font-size: 1.5rem;
+            font-family: 'Orbitron', sans-serif;
+            transition: all 0.3s;
+        }
+
+        #usdInput:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 15px rgba(10, 242, 255, 0.3);
+        }
+
+        .input-hint {
+            margin-top: 8px;
+            font-size: 0.9rem;
+            color: var(--text-dim);
+            font-style: italic;
+        }
+
+        /* Results Styles */
+        .result-item {
+            background: rgba(10, 15, 35, 0.6);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 4px solid var(--primary);
+            transition: all 0.3s;
+        }
+
+        .result-item:hover {
+            background: rgba(10, 15, 35, 0.8);
+            transform: translateX(5px);
+        }
+
+        .result-label {
+            font-size: 1rem;
+            color: var(--text-dim);
+            margin-bottom: 5px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .result-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .mvr-value {
+            color: var(--accent);
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            margin-top: 40px;
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            color: var(--text-dim);
+        }
+
+        .progress-bar {
+            height: 12px;
+            background: rgba(10, 15, 35, 0.8);
+            border-radius: 6px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--secondary), var(--primary));
+            border-radius: 6px;
+            width: 0%;
+            transition: width 0.5s ease-out;
+            position: relative;
+        }
+
+        .progress-fill.complete {
+            background: linear-gradient(90deg, var(--secondary), var(--success));
+            animation: complete-pulse 1.5s infinite;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        .spec-indicator {
+            display: inline-block;
+            background: var(--success);
+            color: var(--darker-bg);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-left: 5px;
+            animation: spec-glow 2s infinite;
+        }
+
+        /* Exchange Rate Display */
+        .exchange-rate {
+            background: rgba(10, 15, 35, 0.6);
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 25px;
+            text-align: center;
+            border: 1px solid rgba(123, 66, 246, 0.3);
+        }
+
+        .rate-value {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--secondary);
+            font-size: 1.5rem;
+            margin-top: 5px;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 30px 20px;
+            color: var(--text-dim);
+            font-size: 0.9rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            margin-top: 40px;
+        }
+
+        .footer-note {
+            max-width: 600px;
+            margin: 0 auto 20px;
+            line-height: 1.6;
+        }
+
+        /* Animations */
+        @keyframes pulse {
+            0% { text-shadow: 0 0 15px rgba(10, 242, 255, 0.5); }
+            100% { text-shadow: 0 0 25px rgba(10, 242, 255, 0.8), 0 0 35px rgba(123, 66, 246, 0.6); }
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        @keyframes counter {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes complete-pulse {
+            0% { box-shadow: 0 0 5px rgba(0, 255, 157, 0.5); }
+            50% { box-shadow: 0 0 15px rgba(0, 255, 157, 0.8); }
+            100% { box-shadow: 0 0 5px rgba(0, 255, 157, 0.5); }
+        }
+
+        @keyframes spec-glow {
+            0% { box-shadow: 0 0 5px rgba(0, 255, 157, 0.5); }
+            50% { box-shadow: 0 0 10px rgba(0, 255, 157, 0.8), 0 0 15px rgba(0, 255, 157, 0.6); }
+            100% { box-shadow: 0 0 5px rgba(0, 255, 157, 0.5); }
+        }
+
+        .counter-animation {
+            animation: counter 0.8s ease-out;
+        }
+
+        /* Calculation Steps */
+        .calculation-steps {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .calculation-step {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            border-radius: 8px;
+            background: rgba(10, 15, 35, 0.4);
+            transition: all 0.3s;
+        }
+
+        .calculation-step.active {
+            background: rgba(10, 15, 35, 0.7);
+            border-left: 3px solid var(--primary);
+        }
+
+        .calculation-step.completed {
+            background: rgba(0, 255, 157, 0.1);
+            border-left: 3px solid var(--success);
+        }
+
+        .step-icon {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: rgba(10, 242, 255, 0.1);
+            color: var(--primary);
+        }
+
+        .step-icon.completed {
+            background: var(--success);
+            color: var(--darker-bg);
+        }
+
+        .step-text {
+            flex: 1;
+            font-size: 0.9rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .logo {
+                font-size: 2.5rem;
+            }
+            
+            .main-content {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .calculator-card, .results-card {
+                width: 100%;
+            }
+            
+            #usdInput {
+                font-size: 1.3rem;
+                padding: 15px 15px 15px 35px;
+            }
+            
+            .result-value {
+                font-size: 1.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .logo {
+                font-size: 2rem;
+            }
+            
+            .calculator-card, .results-card {
+                padding: 20px;
+            }
+            
+            .section-title {
+                font-size: 1.5rem;
+            }
+        }
+
+        /* Extra Futuristic Elements */
+        .floating-elements {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .floating-element {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--primary);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--primary);
+            opacity: 0.5;
+        }
+
+        /* Instructions */
+        .instructions {
+            max-width: 800px;
+            margin: 0 auto 40px;
+            background: var(--glass-bg);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .instructions h3 {
+            color: var(--primary);
+            margin-bottom: 15px;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .instructions ul {
+            padding-left: 20px;
+            color: var(--text-dim);
+            line-height: 1.6;
+        }
+
+        .instructions li {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="floating-elements" id="floatingElements"></div>
+    
+    <div class="container">
+        <header>
+            <h1 class="logo">TEMU VALUE CALCULATOR</h1>
+            <div class="header-decoration"></div>
+            <p class="tagline">Futuristic Currency Conversion with Real-Time Calculations</p>
+        </header>
+
+        <div class="instructions">
+            <h3><i class="fas fa-info-circle"></i> How to Use</h3>
+            <ul>
+                <li>Enter the total amount in USD for your Temu products in the input field</li>
+                <li>The conversion to MVR (Maldivian Rufiyaa) happens automatically as you type</li>
+                <li>A 30% additional charge is automatically applied to the MVR total</li>
+                <li>Watch the progress bar fill to 100% after each calculation</li>
+                <li>All calculations update in real-time without needing to press any buttons</li>
+            </ul>
+        </div>
+
+        <div class="main-content">
+            <div class="calculator-card">
+                <h2 class="section-title"><i class="fas fa-calculator"></i> INPUT AMOUNT</h2>
+                
+                <div class="input-group">
+                    <label class="input-label">Enter Temu Order Total (USD)</label>
+                    <div class="input-container">
+                        <span class="currency-symbol">$</span>
+                        <input type="number" id="usdInput" placeholder="0.00" min="0" step="0.01">
+                    </div>
+                    <p class="input-hint">Start typing to see real-time conversion to MVR</p>
+                </div>
+
+                <div class="exchange-rate">
+                    <p>Current Exchange Rate</p>
+                    <p class="rate-value">1 USD = 15.42 MVR</p>
+                </div>
+
+                <div class="calculation-steps">
+                    <div class="calculation-step" id="step1">
+                        <div class="step-icon"><i class="fas fa-dollar-sign"></i></div>
+                        <div class="step-text">Enter USD Amount</div>
+                    </div>
+                    <div class="calculation-step" id="step2">
+                        <div class="step-icon"><i class="fas fa-exchange-alt"></i></div>
+                        <div class="step-text">Convert to MVR (Rate: 15.42)</div>
+                    </div>
+                    <div class="calculation-step" id="step3">
+                        <div class="step-icon"><i class="fas fa-percentage"></i></div>
+                        <div class="step-text">Add 30% Additional Charge</div>
+                    </div>
+                    <div class="calculation-step" id="step4">
+                        <div class="step-icon"><i class="fas fa-check-circle"></i></div>
+                        <div class="step-text">Calculation Complete <span class="spec-indicator">SPEC</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="results-card">
+                <h2 class="section-title"><i class="fas fa-chart-line"></i> CALCULATED RESULTS</h2>
+                
+                <div class="result-item">
+                    <div class="result-label">
+                        <span>USD Amount</span>
+                        <span>Original Value</span>
+                    </div>
+                    <div class="result-value" id="usdDisplay">$0.00</div>
+                </div>
+
+                <div class="result-item">
+                    <div class="result-label">
+                        <span>MVR Conversion</span>
+                        <span>Exchange Rate: 15.42</span>
+                    </div>
+                    <div class="result-value mvr-value" id="mvrDisplay">0.00 MVR</div>
+                </div>
+
+                <div class="result-item">
+                    <div class="result-label">
+                        <span>Additional Charge</span>
+                        <span>+30%</span>
+                    </div>
+                    <div class="result-value mvr-value" id="chargeDisplay">0.00 MVR</div>
+                </div>
+
+                <div class="result-item" style="border-left-color: var(--accent); background: rgba(255, 42, 109, 0.05);">
+                    <div class="result-label">
+                        <span>Final Total (MVR)</span>
+                        <span>Amount to Pay</span>
+                    </div>
+                    <div class="result-value" id="finalDisplay" style="color: var(--accent); font-size: 2.2rem;">0.00 MVR</div>
+                </div>
+
+                <div class="progress-container">
+                    <div class="progress-label">
+                        <span>Calculation Progress <span class="spec-indicator">SPEC</span></span>
+                        <span id="progressPercent">0%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <p class="input-hint" style="margin-top: 10px; text-align: center;">
+                        Progress bar completes to 100% after each calculation
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <div class="footer-note">
+                <p>This calculator uses a fixed exchange rate of 1 USD = 15.42 MVR and applies a 30% additional charge to the converted amount. All calculations are performed in real-time as you type. Progress bar completes fully after each calculation <span class="spec-indicator">SPEC</span>.</p>
+            </div>
+            <p>© 2026 Futuristic Temu Value Calculator | Designed with <i class="fas fa-heart" style="color: var(--accent);"></i> for Temu shoppers</p>
+        </footer>
+    </div>
+
+    <script>
+        // DOM Elements
+        const usdInput = document.getElementById('usdInput');
+        const usdDisplay = document.getElementById('usdDisplay');
+        const mvrDisplay = document.getElementById('mvrDisplay');
+        const chargeDisplay = document.getElementById('chargeDisplay');
+        const finalDisplay = document.getElementById('finalDisplay');
+        const progressFill = document.getElementById('progressFill');
+        const progressPercent = document.getElementById('progressPercent');
+        const floatingElements = document.getElementById('floatingElements');
+        
+        // Calculation steps
+        const step1 = document.getElementById('step1');
+        const step2 = document.getElementById('step2');
+        const step3 = document.getElementById('step3');
+        const step4 = document.getElementById('step4');
+
+        // Constants
+        const EXCHANGE_RATE = 15.42;
+        const ADDITIONAL_CHARGE_RATE = 0.30; // 30%
+
+        // Create floating background elements
+        function createFloatingElements() {
+            for (let i = 0; i < 30; i++) {
+                const element = document.createElement('div');
+                element.classList.add('floating-element');
+                
+                // Random position
+                const posX = Math.random() * 100;
+                const posY = Math.random() * 100;
+                
+                // Random size and animation
+                const size = Math.random() * 4 + 1;
+                const duration = Math.random() * 20 + 10;
+                const delay = Math.random() * 5;
+                
+                element.style.left = `${posX}%`;
+                element.style.top = `${posY}%`;
+                element.style.width = `${size}px`;
+                element.style.height = `${size}px`;
+                element.style.animation = `float ${duration}s ${delay}s infinite linear`;
+                
+                floatingElements.appendChild(element);
+            }
+            
+            // Add CSS for floating animation
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes float {
+                    0% { transform: translateY(0) rotate(0deg); opacity: 0.5; }
+                    50% { opacity: 0.8; }
+                    100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        // Format currency
+        function formatCurrency(amount, currency = 'USD', isMvr = false) {
+            const formatter = new Intl.NumberFormat('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+            
+            const formatted = formatter.format(amount);
+            
+            if (isMvr) {
+                return `${formatted} MVR`;
+            }
+            
+            return currency === 'USD' ? `$${formatted}` : `${formatted}`;
+        }
+
+        // Calculate values based on USD input
+        function calculateValues(usdAmount) {
+            // Convert to MVR
+            const mvrAmount = usdAmount * EXCHANGE_RATE;
+            
+            // Calculate additional charge
+            const additionalCharge = mvrAmount * ADDITIONAL_CHARGE_RATE;
+            
+            // Calculate final total
+            const finalTotal = mvrAmount + additionalCharge;
+            
+            return {
+                usdAmount,
+                mvrAmount,
+                additionalCharge,
+                finalTotal
+            };
+        }
+
+        // Update calculation steps visualization
+        function updateCalculationSteps(step) {
+            // Reset all steps
+            [step1, step2, step3, step4].forEach(stepEl => {
+                stepEl.classList.remove('active', 'completed');
+                const icon = stepEl.querySelector('.step-icon');
+                icon.classList.remove('completed');
+                icon.innerHTML = icon.innerHTML.replace('fa-check', 'fa-spinner');
+            });
+            
+            // Activate current step and complete previous ones
+            for (let i = 1; i <= 4; i++) {
+                const stepEl = document.getElementById(`step${i}`);
+                if (i < step) {
+                    stepEl.classList.add('completed');
+                    const icon = stepEl.querySelector('.step-icon');
+                    icon.classList.add('completed');
+                    icon.innerHTML = '<i class="fas fa-check"></i>';
+                } else if (i === step) {
+                    stepEl.classList.add('active');
+                    const icon = stepEl.querySelector('.step-icon');
+                    icon.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                }
+            }
+        }
+
+        // Animate progress bar to 100%
+        function animateProgressBar() {
+            // Reset progress bar
+            progressFill.style.width = '0%';
+            progressPercent.textContent = '0%';
+            progressFill.classList.remove('complete');
+            
+            // Animate progress bar to 100% in sequence with calculation steps
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += 5;
+                if (progress > 100) {
+                    progress = 100;
+                    clearInterval(interval);
+                    
+                    // Add completion effect
+                    progressFill.classList.add('complete');
+                    
+                    // Update step 4 to completed
+                    step4.classList.add('completed');
+                    step4.classList.remove('active');
+                    const icon = step4.querySelector('.step-icon');
+                    icon.classList.add('completed');
+                    icon.innerHTML = '<i class="fas fa-check"></i>';
+                }
+                
+                progressFill.style.width = `${progress}%`;
+                progressPercent.textContent = `${progress}%`;
+            }, 30);
+        }
+
+        // Update display with calculated values
+        function updateDisplay(values) {
+            // Update calculation steps
+            updateCalculationSteps(1);
+            
+            // Update USD display
+            usdDisplay.textContent = formatCurrency(values.usdAmount, 'USD');
+            
+            // Update calculation steps
+            setTimeout(() => {
+                updateCalculationSteps(2);
+                
+                // Update MVR display with animation
+                mvrDisplay.textContent = formatCurrency(values.mvrAmount, 'MVR', true);
+                mvrDisplay.classList.add('counter-animation');
+                
+                // Update calculation steps
+                setTimeout(() => {
+                    updateCalculationSteps(3);
+                    
+                    // Update charge display with animation
+                    chargeDisplay.textContent = formatCurrency(values.additionalCharge, 'MVR', true);
+                    chargeDisplay.classList.add('counter-animation');
+                    
+                    // Update calculation steps
+                    setTimeout(() => {
+                        updateCalculationSteps(4);
+                        
+                        // Update final display with animation
+                        finalDisplay.textContent = formatCurrency(values.finalTotal, 'MVR', true);
+                        finalDisplay.classList.add('counter-animation');
+                        
+                        // Animate progress bar to 100%
+                        animateProgressBar();
+                        
+                        // Remove animation classes after animation completes
+                        setTimeout(() => {
+                            mvrDisplay.classList.remove('counter-animation');
+                            chargeDisplay.classList.remove('counter-animation');
+                            finalDisplay.classList.remove('counter-animation');
+                        }, 800);
+                    }, 300);
+                }, 300);
+            }, 300);
+        }
+
+        // Handle input events
+        function handleInput() {
+            let usdValue = parseFloat(usdInput.value) || 0;
+            
+            // If value is too large, cap it for display purposes
+            if (usdValue > 1000000) {
+                usdValue = 1000000;
+                usdInput.value = usdValue;
+            }
+            
+            const calculatedValues = calculateValues(usdValue);
+            updateDisplay(calculatedValues);
+        }
+
+        // Initialize the page
+        function init() {
+            // Create floating elements
+            createFloatingElements();
+            
+            // Set initial values
+            const initialValues = calculateValues(0);
+            updateDisplay(initialValues);
+            
+            // Add event listener for input
+            usdInput.addEventListener('input', handleInput);
+            
+            // Add event listener for focus to highlight input
+            usdInput.addEventListener('focus', function() {
+                this.style.boxShadow = '0 0 20px rgba(10, 242, 255, 0.5)';
+            });
+            
+            usdInput.addEventListener('blur', function() {
+                this.style.boxShadow = '';
+            });
+            
+            // Add some sample data for demo
+            setTimeout(() => {
+                usdInput.value = "125.50";
+                handleInput();
+            }, 1000);
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
